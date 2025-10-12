@@ -5,4 +5,4 @@ torchvision==0.23.0+cpu
 numpy==1.26.4
 Pillow==10.3.0
 scikit-learn==1.5.2
-streamlit==1.38.00
+streamlit==1.38.0
