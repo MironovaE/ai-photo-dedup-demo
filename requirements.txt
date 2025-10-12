@@ -1,8 +1,8 @@
---extra-index-url https://download.pytorch.org/whl/cpu
-
 torch==2.8.0+cpu
 torchvision==0.23.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 numpy>=1.28.0
-Pillow>=10.4.0
+Pillow>=10.4.0,<11        # ← вот это исправление
 scikit-learn==1.5.2
 streamlit==1.38.0
