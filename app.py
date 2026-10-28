@@ -13,6 +13,8 @@ LOGO_PATH = "ai_bot.png"
 SAMPLES_DIR = "sample_photos"
 THUMB_SIZE = 240
 THUMBS_PER_ROW = 4
+# Больше этого размера не нужно ни модели (ResNet всё равно сжимает до 224), ни просмотру
+MAX_SIDE = 1600
 
 if "lang" not in st.session_state:
     st.session_state.lang = "ru"
@@ -34,7 +36,7 @@ TEXTS = {
     "en": {
         "page_title": "Smart Photo Cleaner",
         "title": "Smart Photo Cleaner",
-        "tagline": "Finds near-identical shots so you keep only the best ones.",
+        "tagline": "Finds near-identical shots so the extra copies are easy to spot.",
         "intro": "Drop in photos from a walk or a trip. Similar frames are grouped together, "
                  "so it's easy to see what can go.",
         "privacy": "Files are processed in memory and deleted right after the analysis.",
@@ -60,7 +62,7 @@ TEXTS = {
     "ru": {
         "page_title": "Умная чистка фото",
         "title": "Умная чистка фото",
-        "tagline": "Находит почти одинаковые кадры, чтобы оставить только лучшие.",
+        "tagline": "Находит почти одинаковые кадры, чтобы было видно, что лишнее.",
         "intro": "Загрузите снимки с прогулки или из отпуска. Похожие кадры соберутся в группы — "
                  "сразу видно, что можно удалить.",
         "privacy": "Файлы обрабатываются в памяти и удаляются сразу после анализа.",
@@ -153,6 +155,24 @@ def step_viewer(delta):
     st.session_state.viewer_index += delta
 
 
+def unique_name(name, taken):
+    """Файлы с одинаковым именем из разных папок не должны затирать друг друга."""
+    if name not in taken:
+        return name
+    stem, ext = os.path.splitext(name)
+    n = 2
+    while f"{stem} ({n}){ext}" in taken:
+        n += 1
+    return f"{stem} ({n}){ext}"
+
+
+def open_photo(source):
+    # Снимки с телефона хранят поворот в EXIF — без exif_transpose они лягут на бок
+    img = ImageOps.exif_transpose(Image.open(source)).convert("RGB")
+    img.thumbnail((MAX_SIDE, MAX_SIDE))
+    return img
+
+
 def image_to_base64(img, fmt="PNG"):
     buf = io.BytesIO()
     img.save(buf, format=fmt)
@@ -222,7 +242,8 @@ else:
         all_images = {}
         with tempfile.TemporaryDirectory() as tmpdir:
             for name, _, source in photos:
-                img = Image.open(source).convert("RGB")
+                name = unique_name(name, all_images)
+                img = open_photo(source)
                 all_images[name] = img
                 img.save(os.path.join(tmpdir, name))
 
@@ -284,8 +305,7 @@ else:
             files = duplicate_groups[st.session_state.selected_group]
             idx = st.session_state.viewer_index % len(files)
             current_name = files[idx]
-            preview = all_images[current_name].copy()
-            preview.thumbnail((1600, 1600))
+            preview = all_images[current_name]
 
             st.markdown(
                 f"""
