@@ -34,56 +34,56 @@ def plural_ru(n, one, few, many):
 
 TEXTS = {
     "en": {
-        "page_title": "Smart Photo Cleaner",
-        "title": "Smart Photo Cleaner",
-        "tagline": "Finds near-identical shots so the extra copies are easy to spot.",
-        "intro": "Drop in photos from a walk or a trip. Similar frames are grouped together, "
-                 "so it's easy to see what can go.",
-        "privacy": "Files are processed in memory and deleted right after the analysis.",
+        "page_title": "Similar shots, side by side",
+        "title": "Similar shots, side by side",
+        "tagline": "A visual search demo for your photo series.",
+        "intro": "Upload a set of photos or open the sample set. The model groups visually similar "
+                 "shots so you can compare them and choose what to keep.",
+        "privacy": "Photos stay in this session; temporary files used for analysis are removed afterward.",
         "upload_label": "Photos (JPG or PNG, at least 2)",
         "sensitivity_label": "Sensitivity",
         "sensitivity_help": "Lower is stricter: only near-identical shots get grouped together.",
-        "min_files": "Add at least two photos to start.",
-        "try_samples": "Try with sample photos",
+        "min_files": "Add one more photo to start.",
+        "try_samples": "Explore sample photos",
         "samples_active": "Showing sample photos. Upload your own to analyze them instead.",
         "analyzing": "Analyzing {} photos…",
-        "no_duplicates": "No similar photos found — every shot is unique.",
+        "no_duplicates": "No groups at this sensitivity. Try moving the slider up.",
         "groups_title": "Similar shots",
         "viewer_title": "Preview",
         "group_header": "Group {} · {} photos",
         "open": "Open",
         "opened": "Viewing",
         "total_photos": "Total photos",
-        "keep": "Keep",
-        "can_remove": "Can remove",
+        "group_count": "Similar groups",
+        "grouped_photos": "Photos in groups",
         "switch_lang": "RU",
-        "footer": "Demo · ResNet50 embeddings + DBSCAN · [Source code]({})",
+        "footer": "Built with ResNet50 embeddings + DBSCAN · [View the code on GitHub]({})",
     },
     "ru": {
-        "page_title": "Умная чистка фото",
-        "title": "Умная чистка фото",
-        "tagline": "Находит почти одинаковые кадры, чтобы было видно, что лишнее.",
-        "intro": "Загрузите снимки с прогулки или из отпуска. Похожие кадры соберутся в группы — "
-                 "сразу видно, что можно удалить.",
-        "privacy": "Файлы обрабатываются в памяти и удаляются сразу после анализа.",
+        "page_title": "Похожие кадры — рядом",
+        "title": "Похожие кадры — рядом",
+        "tagline": "Демо поиска похожих фотографий.",
+        "intro": "Загрузите серию снимков или откройте примеры. Модель соберёт похожие кадры "
+                 "в группы, а вы сравните их и решите, что оставить.",
+        "privacy": "Фото остаются в текущей сессии; временные файлы для анализа удаляются после обработки.",
         "upload_label": "Фотографии (JPG или PNG, минимум 2)",
         "sensitivity_label": "Чувствительность",
         "sensitivity_help": "Чем меньше, тем строже: в группу попадут только почти одинаковые кадры.",
-        "min_files": "Добавьте хотя бы две фотографии, чтобы начать.",
-        "try_samples": "Попробовать на примерах",
+        "min_files": "Добавьте ещё одно фото, чтобы начать.",
+        "try_samples": "Посмотреть на примерах",
         "samples_active": "Показаны примеры. Загрузите свои фото, чтобы проверить их.",
         "analyzing": "Анализируем фото: {}…",
-        "no_duplicates": "Похожих фото не нашлось — все кадры разные.",
+        "no_duplicates": "При этой чувствительности группы не нашлись. Попробуйте сдвинуть ползунок вправо.",
         "groups_title": "Похожие группы",
         "viewer_title": "Просмотр",
         "group_header": "Группа {} · {} фото",
         "open": "Открыть",
         "opened": "Открыта",
         "total_photos": "Всего фото",
-        "keep": "Оставить",
-        "can_remove": "Можно удалить",
+        "group_count": "Похожих групп",
+        "grouped_photos": "Фото в группах",
         "switch_lang": "EN",
-        "footer": "Демо · эмбеддинги ResNet50 + DBSCAN · [Исходный код]({})",
+        "footer": "Основа: эмбеддинги ResNet50 + DBSCAN · [Код на GitHub]({})",
     },
 }
 
@@ -132,6 +132,8 @@ st.markdown(
     [data-stale="true"] { opacity: 1 !important; transition: none !important; }
     .viewer-caption { text-align: center; margin: 8px 0 0; }
     .counter { text-align: center; padding-top: 6px; }
+    [data-testid="stImageContainer"] { width: 100% !important; max-width: 100% !important; }
+    [data-testid="stImageContainer"] img { display: block; width: 100% !important; height: auto !important; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -232,9 +234,9 @@ with slider_col:
         help=t["sensitivity_help"],
     )
 
-if len(photos) < 2:
+if len(photos) == 1:
     st.caption(t["min_files"])
-else:
+elif len(photos) >= 2:
     file_info = tuple(sorted((name, size) for name, size, _ in photos))
     cache_key = (file_info, eps)
 
@@ -260,13 +262,12 @@ else:
     all_images = st.session_state.all_images
 
     duplicate_groups = {k: v for k, v in clusters.items() if len(v) > 1}
-    total_remove = sum(len(files) - 1 for files in duplicate_groups.values())
+    grouped_photos = sum(len(files) for files in duplicate_groups.values())
 
-    st.divider()
     a, b, c = st.columns(3)
     a.metric(t["total_photos"], len(photos))
-    b.metric(t["keep"], len(photos) - total_remove)
-    c.metric(t["can_remove"], total_remove)
+    b.metric(t["group_count"], len(duplicate_groups))
+    c.metric(t["grouped_photos"], grouped_photos)
 
     if not duplicate_groups:
         st.info(t["no_duplicates"])

@@ -1,7 +1,7 @@
-# Умная чистка фото
+# Похожие кадры — рядом
 
-Находит почти одинаковые кадры среди загруженных фотографий и собирает их в группы, чтобы
-было видно, что можно удалить, а что оставить.
+Демо группирует визуально похожие фотографии и показывает их рядом. Можно загрузить свои снимки
+или открыть готовый набор; что оставить, решает человек.
 
 **Демо:** https://ai-photo-dedup-demo.streamlit.app/
 
@@ -45,5 +45,6 @@ Python, Streamlit, PyTorch / torchvision (ResNet50), scikit-learn (DBSCAN), Pill
 
 ## Примеры фото
 
-Снимки в `sample_photos/` — с [Unsplash](https://unsplash.com), авторы перечислены
-в [`sample_photos/CREDITS.md`](sample_photos/CREDITS.md).
+Снимки в `sample_photos/` — из личной коллекции Katherine Mironova. Для демо они
+уменьшены и сохранены без геометок; подробности — в
+[`sample_photos/CREDITS.md`](sample_photos/CREDITS.md).
