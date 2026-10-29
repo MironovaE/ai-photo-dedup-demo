@@ -111,6 +111,11 @@ st.markdown(
     .app-header img { width: 56px; height: 56px; border-radius: 12px; }
     .app-header h1 { font-size: 1.75rem; margin: 0; padding: 0; line-height: 1.2; }
     .app-header p { margin: 2px 0 0; color: #6b6f76; }
+    @media (min-width: 641px) {
+        [data-testid="stHorizontalBlock"]:has(.app-header) [data-testid="stButton"] {
+            margin-top: 0.75rem;
+        }
+    }
     .intro { max-width: 680px; margin: 1.25rem 0 0.25rem; line-height: 1.6; }
     .muted { color: #6b6f76; font-size: 0.875rem; }
     .viewer {
