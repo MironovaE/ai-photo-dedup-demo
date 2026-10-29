@@ -1,9 +1,9 @@
 # Sample photos / Примеры фото
 
 **English.** Four series from Katherine Mironova's own collection show city views, flowers by the
-river, and a park. Each series contains three different shots of the same scene taken in sequence.
-The public demo uses copies resized to a maximum of 1,600 pixels and saved without EXIF, including
-location data. The photographer retains the rights to these images.
+river, and park scenery. Each series contains three distinct shots taken in quick succession. The
+public demo uses copies resized to 1,600 pixels on the longest side, with EXIF (including location
+data) removed. Katherine retains the rights to these images.
 
 **Русский.** Четыре серии из личной коллекции Katherine Mironova: городские виды, цветы у
 набережной и парк. В каждой серии три разных кадра одного сюжета, снятых подряд. Для публичного
