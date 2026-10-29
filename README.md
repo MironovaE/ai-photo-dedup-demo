@@ -1,50 +1,52 @@
-# Похожие кадры — рядом
+**English** | [Русский](README.ru.md)
 
-Демо группирует визуально похожие фотографии и показывает их рядом. Можно загрузить свои снимки
-или открыть готовый набор; что оставить, решает человек.
+# Similar shots, side by side
 
-**Демо:** https://ai-photo-dedup-demo.streamlit.app/
+This demo groups visually similar photos and shows them together. Upload your own pictures or open
+four real photo series; you decide which shots to keep.
 
-Если своих фото под рукой нет, в приложении есть кнопка «Попробовать на примерах». Бесплатный
-Streamlit усыпляет приложение, если в него давно не заходили, — тогда нажмите «Yes, get this app
-back up!», оно проснётся примерно за минуту.
+**Live demo:** https://ai-photo-dedup-demo.streamlit.app/
 
-![Группы похожих кадров на примерах](docs/screenshot.jpg)
+No photos handy? Click **Explore sample photos** in the app. Free Streamlit hosting may put the demo
+to sleep after a period of inactivity. If you see **Yes, get this app back up!**, click it and give
+the app about a minute to start.
 
-## Как это работает
+![Groups of similar shots from the sample set](docs/screenshot.jpg)
 
-1. Каждое фото прогоняется через ResNet50 без последнего слоя — на выходе вектор признаков
-   (эмбеддинг) длиной 2048.
-2. Векторы нормализуются и кластеризуются DBSCAN по косинусному расстоянию.
-3. Фото из одного кластера считаются похожими. Ползунок «Чувствительность» — это `eps` DBSCAN:
-   чем меньше, тем строже.
+## How it works
 
-Загруженные фото живут только в сессии: на время анализа они кладутся во временную папку, которая
-удаляется сразу после него.
+1. ResNet50 without its final classification layer turns each photo into a 2,048-dimensional
+   feature vector (embedding).
+2. The embeddings are normalized and clustered with DBSCAN using cosine distance.
+3. Photos in the same cluster appear together. The **Sensitivity** slider controls DBSCAN's `eps`:
+   lower values produce stricter groups.
 
-## Ограничения
+Uploaded photos stay in the current session. The app creates temporary files for analysis and
+removes them as soon as analysis finishes.
 
-- Группирует похожие кадры, но не выбирает лучший в группе — это решает человек.
-- Форматы — JPG и PNG; HEIC с iPhone нужно сначала сконвертировать.
-- ResNet50 обучен на ImageNet: он хорошо ловит «тот же сюжет», но может объединить разные кадры
-  одной сцены. Порог настраивается ползунком.
+## Limits
 
-## Запуск локально
+- The model groups similar shots; it does not choose the best photo or delete anything.
+- Uploads support JPG and PNG. Convert iPhone HEIC photos before uploading.
+- ResNet50 was trained on ImageNet. It recognizes similar scenes well, but may group distinct
+  pictures of the same scene. Adjust the sensitivity when needed.
+
+## Run locally
 
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-`requirements.txt` рассчитан на Streamlit Cloud (Linux, CPU-сборка torch). На macOS поставьте
-`torch` и `torchvision` тех же версий без суффикса `+cpu`.
+`requirements.txt` targets Streamlit Cloud on Linux and pins CPU builds of PyTorch. On macOS,
+install matching `torch` and `torchvision` versions without the `+cpu` suffix.
 
-## Стек
+## Stack
 
 Python, Streamlit, PyTorch / torchvision (ResNet50), scikit-learn (DBSCAN), Pillow.
 
-## Примеры фото
+## Sample photos
 
-Снимки в `sample_photos/` — из личной коллекции Katherine Mironova. Для демо они
-уменьшены и сохранены без геометок; подробности — в
+The 12 photos in `sample_photos/` are from Katherine Mironova's own collection. The public demo
+uses resized copies with EXIF and location metadata removed. See
 [`sample_photos/CREDITS.md`](sample_photos/CREDITS.md).
